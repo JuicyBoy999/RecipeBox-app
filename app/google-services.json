@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "368785904836",
+    "firebase_url": "https://recipebox-dccc7-default-rtdb.firebaseio.com",
+    "project_id": "recipebox-dccc7",
+    "storage_bucket": "recipebox-dccc7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368785904836:android:64dd7c0f34f6b8dfe62591",
+        "android_client_info": {
+          "package_name": "com.example.recipebox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdkkVdCM_7EEesPaGB6HFdkHjcU4vI1M4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
