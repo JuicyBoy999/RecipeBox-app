@@ -1,6 +1,7 @@
 package com.example.recipebox
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +42,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.recipebox.model.UserModel
+import com.example.recipebox.repo.UserRepoImpl
 import com.example.recipebox.ui.theme.Orange
+import com.example.recipebox.viewmodel.UserViewModel
 
 class RecipeBoxSignUp : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,9 +59,11 @@ class RecipeBoxSignUp : ComponentActivity() {
 
 @Composable
 fun SignUp () {
+    val userViewModel = remember { UserViewModel (UserRepoImpl()) }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column (
         modifier = Modifier
@@ -157,7 +164,22 @@ fun SignUp () {
         )
         Spacer(modifier = Modifier.height(24.dp))
         ElevatedButton(
-            onClick = {},
+            onClick = {
+                userViewModel.register(email, password) { success, msg, userId ->
+                    if (success) {
+                        val user = UserModel (
+                            id = userId,
+                            name = name,
+                            email = email,
+                        )
+                        userViewModel.addUser(userId, user) { success, msg ->
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    }
+                }
+            },
             modifier = Modifier
                 .height(45.dp)
                 .fillMaxWidth(),

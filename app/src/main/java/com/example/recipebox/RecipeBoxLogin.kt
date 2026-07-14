@@ -1,12 +1,14 @@
 package com.example.recipebox
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +21,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -36,15 +37,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.recipebox.ui.theme.RecipeBoxTheme
+import com.example.recipebox.model.UserModel
+import com.example.recipebox.repo.UserRepoImpl
 import com.example.recipebox.ui.theme.Orange
+import com.example.recipebox.viewmodel.UserViewModel
 
 class RecipeBoxLogin : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,11 +63,17 @@ class RecipeBoxLogin : ComponentActivity() {
 }
 
 @Composable
-fun SignIn () {
+fun SignIn() {
+    val userViewModel = remember { UserViewModel(UserRepoImpl()) }
+    val context = LocalContext.current
+    val activity = context as Activity
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var visibility by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
-    Column (
+    Column(
         modifier = Modifier
             .padding(start = 24.dp, end = 24.dp)
             .fillMaxSize(),
@@ -98,19 +110,16 @@ fun SignIn () {
             color = Color.Gray,
             textAlign = TextAlign.Center
         )
+
         OutlinedTextField(
             value = email,
-            onValueChange = {
-                email = it
-            },
+            onValueChange = { email = it },
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(top = 24.dp)
                 .fillMaxWidth()
                 .height(58.dp),
-            placeholder = {
-                Text("Enter your email")
-            },
+            placeholder = { Text("Enter your email") },
             colors = TextFieldDefaults.colors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
@@ -118,18 +127,27 @@ fun SignIn () {
                 focusedContainerColor = Color.Gray.copy(alpha = 0.08f)
             )
         )
+
         OutlinedTextField(
             value = password,
-            onValueChange = {
-                password = it
-            },
+            onValueChange = { password = it },
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(top = 24.dp)
                 .fillMaxWidth()
                 .height(58.dp),
-            placeholder = {
-                Text("Enter your password")
+            placeholder = { Text("Enter your password") },
+            visualTransformation = if (visibility) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { visibility = !visibility }) {
+                    Icon(
+                        painter = if (visibility)
+                            painterResource(R.drawable.baseline_visibility_24)
+                        else
+                            painterResource(R.drawable.baseline_visibility_off_24),
+                        contentDescription = null
+                    )
+                }
             },
             colors = TextFieldDefaults.colors(
                 unfocusedIndicatorColor = Color.Transparent,
@@ -138,47 +156,77 @@ fun SignIn () {
                 focusedContainerColor = Color.Gray.copy(alpha = 0.08f)
             )
         )
-        Row (
+
+        Row(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            Text("Forgot password",
-                modifier = Modifier.clickable{},
-                style = TextStyle(
-                    fontSize = 15.sp,
-            ))
+            Text(
+                "Forgot password",
+                modifier = Modifier.clickable {
+                    userViewModel.forgetPassword(email) { success, msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    }
+                },
+                style = TextStyle(fontSize = 15.sp)
+            )
         }
+
         Spacer(modifier = Modifier.height(24.dp))
+
         ElevatedButton(
-            onClick = {},
+            onClick = {
+                if (email.isBlank() || password.isBlank()) {
+                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    return@ElevatedButton
+                }
+                isLoading = true
+                userViewModel.login(email, password) { success, msg ->
+                    isLoading = false
+                    if (success) {
+                        Toast.makeText(context, "Login successful", Toast.LENGTH_LONG).show()
+                        val intent = Intent(context, RecipeBoxDashboard::class.java) 
+                        context.startActivity(intent)
+                        activity.finish()
+                    } else {
+                        Toast.makeText(context, "Login failed: $msg", Toast.LENGTH_LONG).show()
+                    }
+                }
+            },
             modifier = Modifier
                 .height(45.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Orange
-            )
+            ),
+            enabled = !isLoading
         ) {
-            Text("Sign In", style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            ))
+            Text(
+                if (isLoading) "Signing in..." else "Sign In",
+                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            )
         }
+
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Navigate to Sign Up
         Row {
-            Text("Don't have an account? ", style = TextStyle(
-                fontSize = 15.sp,
-                color = Color.Gray
-            ))
-            Text("Sign Up",
-                modifier = Modifier.clickable{},
+            Text("Don't have an account? ", style = TextStyle(fontSize = 15.sp, color = Color.Gray))
+            Text(
+                "Sign Up",
+                modifier = Modifier.clickable {
+                    val intent = Intent(context, RecipeBoxSignUp::class.java)
+                    context.startActivity(intent)
+                },
                 style = TextStyle(
-                fontSize = 15.sp,
-                color = Color(0xFFEF6C00),
-                fontWeight = FontWeight.Bold
-            ))
+                    fontSize = 15.sp,
+                    color = Color(0xFFEF6C00),
+                    fontWeight = FontWeight.Bold
+                )
+            )
         }
     }
 }
