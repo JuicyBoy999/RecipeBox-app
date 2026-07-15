@@ -186,13 +186,18 @@ fun AddEditRecipeBody(recipeId: String? = null) {
                     Toast.makeText(context, "Please enter a recipe title", Toast.LENGTH_SHORT).show()
                     return@ElevatedButton
                 }
+                val cookTimeValue = cookTime.toIntOrNull()
+                if (cookTime.isNotBlank() && (cookTimeValue == null || cookTimeValue <= 0)) {
+                    Toast.makeText(context, "Cook time must be a positive number", Toast.LENGTH_SHORT).show()
+                    return@ElevatedButton
+                }
                 isSaving = true
                 val model = RecipeModel(
                     recipeId = recipeId ?: "",
                     title = title,
                     ingredients = ingredients,
                     instructions = instructions,
-                    cookTimeMinutes = cookTime.toIntOrNull() ?: 0,
+                    cookTimeMinutes = cookTimeValue ?: 0,
                     userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                 )
                 val onResult: (Boolean, String) -> Unit = { success, msg ->
