@@ -7,6 +7,7 @@ data class RecipeModel(
     var instructions: String = "",
     var cookTimeMinutes: Int = 0,
     var category: String = "",
+    var isFavorite: Boolean = false,
     var userId: String = ""
 ) {
     fun toMap(): Map<String, Any?> {
@@ -16,6 +17,7 @@ data class RecipeModel(
             "instructions" to instructions,
             "cookTimeMinutes" to cookTimeMinutes,
             "category" to category,
+            "isFavorite" to isFavorite,
             "userId" to userId,
         )
     }
