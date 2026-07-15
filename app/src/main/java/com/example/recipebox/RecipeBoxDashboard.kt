@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -240,6 +242,15 @@ fun Dashboard() {
                                 )
                             }
                             Row {
+                                Icon(
+                                    imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    contentDescription = "Favorite",
+                                    tint = if (recipe.isFavorite) Color.Red else Color.Gray,
+                                    modifier = Modifier.clickable {
+                                        recipeViewModel.updateRecipe(recipe.copy(isFavorite = !recipe.isFavorite)) { _, _ -> }
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
                                 Icon(
                                     imageVector = Icons.Default.Edit,
                                     contentDescription = "Edit",
