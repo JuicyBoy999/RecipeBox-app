@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -208,12 +209,21 @@ fun Dashboard() {
                         style = TextStyle(fontSize = 14.sp, color = Color.Gray)
                     )
                 }
-                Icon(
-                    imageVector = if (showFavoritesOnly) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = "Show favorites only",
-                    tint = if (showFavoritesOnly) Color.Red else Color.Gray,
-                    modifier = Modifier.clickable { showFavoritesOnly = !showFavoritesOnly }
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh",
+                        tint = Color.Gray,
+                        modifier = Modifier.clickable { recipeViewModel.getAllRecipes() }
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Icon(
+                        imageVector = if (showFavoritesOnly) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Show favorites only",
+                        tint = if (showFavoritesOnly) Color.Red else Color.Gray,
+                        modifier = Modifier.clickable { showFavoritesOnly = !showFavoritesOnly }
+                    )
+                }
             }
         }
         Box(modifier = Modifier.weight(1f)) {
