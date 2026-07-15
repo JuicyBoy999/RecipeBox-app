@@ -163,10 +163,17 @@ fun PantryBody() {
                                     pantryItem.name,
                                     style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold)
                                 )
-                                Text(
-                                    "${pantryItem.quantity} ${pantryItem.unit}",
-                                    style = TextStyle(fontSize = 14.sp, color = Color.Gray)
-                                )
+                                if (pantryItem.quantity <= 0.0) {
+                                    Text(
+                                        "Out of stock",
+                                        style = TextStyle(fontSize = 14.sp, color = Color.Red, fontWeight = FontWeight.SemiBold)
+                                    )
+                                } else {
+                                    Text(
+                                        "${pantryItem.quantity} ${pantryItem.unit}",
+                                        style = TextStyle(fontSize = 14.sp, color = Color.Gray)
+                                    )
+                                }
                             }
                             Row {
                                 Icon(
