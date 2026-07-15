@@ -22,12 +22,16 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,6 +64,10 @@ fun RecipeSearchBody() {
     val allRecipes = recipeViewModel.allRecipes.observeAsState(initial = emptyList())
     val loading = recipeViewModel.loading.observeAsState(initial = false)
 
+    var query by remember { mutableStateOf("") }
+    val filteredRecipes = allRecipes.value.orEmpty()
+        .filter { query.isBlank() || it.title.contains(query, ignoreCase = true) }
+
     LaunchedEffect(Unit) {
         recipeViewModel.getAllRecipes()
     }
@@ -86,18 +94,37 @@ fun RecipeSearchBody() {
             )
         }
 
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .fillMaxWidth(),
+            placeholder = { Text("Search by recipe title") },
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedContainerColor = Color.Gray.copy(alpha = 0.08f),
+                focusedContainerColor = Color.Gray.copy(alpha = 0.08f)
+            )
+        )
+
         Box(modifier = Modifier.weight(1f)) {
             if (loading.value) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Orange)
                 }
-            } else if (allRecipes.value.isNullOrEmpty()) {
+            } else if (filteredRecipes.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No recipes yet.", color = Color.Gray)
+                    Text(
+                        if (allRecipes.value.isNullOrEmpty()) "No recipes yet." else "No recipes match your search.",
+                        color = Color.Gray
+                    )
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(allRecipes.value ?: emptyList()) { recipe ->
+                    items(filteredRecipes) { recipe ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
