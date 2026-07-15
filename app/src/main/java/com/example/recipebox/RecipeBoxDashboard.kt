@@ -202,7 +202,10 @@ fun Dashboard() {
                                     style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold)
                                 )
                                 Text(
-                                    "${recipe.cookTimeMinutes} min",
+                                    if (recipe.category.isNotBlank())
+                                        "${recipe.category} · ${recipe.cookTimeMinutes} min"
+                                    else
+                                        "${recipe.cookTimeMinutes} min",
                                     style = TextStyle(fontSize = 14.sp, color = Color.Gray)
                                 )
                             }
