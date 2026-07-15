@@ -193,7 +193,7 @@ fun Dashboard() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(painter = painterResource(R.drawable.baseline_auto_graph_24),
                         contentDescription = null,
                         tint = Color(0xFFEF6C00))
@@ -202,6 +202,11 @@ fun Dashboard() {
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium
                     ))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "(${allRecipes.value.orEmpty().size})",
+                        style = TextStyle(fontSize = 14.sp, color = Color.Gray)
+                    )
                 }
                 Icon(
                     imageVector = if (showFavoritesOnly) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
