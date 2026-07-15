@@ -72,6 +72,7 @@ fun AddEditRecipeBody(recipeId: String? = null) {
     var ingredients by remember { mutableStateOf("") }
     var instructions by remember { mutableStateOf("") }
     var cookTime by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
     var isSaving by remember { mutableStateOf(false) }
 
     LaunchedEffect(recipeId) {
@@ -86,6 +87,7 @@ fun AddEditRecipeBody(recipeId: String? = null) {
             ingredients = it.ingredients
             instructions = it.instructions
             cookTime = it.cookTimeMinutes.toString()
+            category = it.category
         }
     }
 
@@ -136,6 +138,22 @@ fun AddEditRecipeBody(recipeId: String? = null) {
                 .padding(top = 16.dp)
                 .fillMaxWidth(),
             placeholder = { Text("Cook time (minutes)") },
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedContainerColor = Color.Gray.copy(alpha = 0.08f),
+                focusedContainerColor = Color.Gray.copy(alpha = 0.08f)
+            )
+        )
+
+        OutlinedTextField(
+            value = category,
+            onValueChange = { category = it },
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
+            placeholder = { Text("Category (e.g. Breakfast, Dessert)") },
             colors = TextFieldDefaults.colors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
@@ -198,6 +216,7 @@ fun AddEditRecipeBody(recipeId: String? = null) {
                     ingredients = ingredients,
                     instructions = instructions,
                     cookTimeMinutes = cookTimeValue ?: 0,
+                    category = category,
                     userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                 )
                 val onResult: (Boolean, String) -> Unit = { success, msg ->
