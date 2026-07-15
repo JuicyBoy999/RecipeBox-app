@@ -8,6 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,6 +78,15 @@ fun Dashboard() {
     val loading = recipeViewModel.loading.observeAsState(initial = false)
 
     var recipePendingDelete by remember { mutableStateOf<RecipeModel?>(null) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+
+    val categories = allRecipes.value.orEmpty()
+        .map { it.category }
+        .filter { it.isNotBlank() }
+        .distinct()
+
+    val visibleRecipes = allRecipes.value.orEmpty()
+        .filter { selectedCategory == null || it.category == selectedCategory }
 
     LaunchedEffect(Unit) {
         recipeViewModel.getAllRecipes()
@@ -149,13 +160,28 @@ fun Dashboard() {
                 fontWeight = FontWeight.Medium
             ))
             Spacer(modifier = Modifier.height(5.dp))
-            ElevatedButton(onClick = {},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Orange
-                )) {
-                Text("All", style = TextStyle(
-                    fontWeight = FontWeight.Bold
-                ))
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState())
+            ) {
+                ElevatedButton(
+                    onClick = { selectedCategory = null },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedCategory == null) Orange else Color.Gray.copy(alpha = 0.15f)
+                    )
+                ) {
+                    Text("All", style = TextStyle(fontWeight = FontWeight.Bold))
+                }
+                categories.forEach { category ->
+                    Spacer(modifier = Modifier.width(8.dp))
+                    ElevatedButton(
+                        onClick = { selectedCategory = category },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedCategory == category) Orange else Color.Gray.copy(alpha = 0.15f)
+                        )
+                    ) {
+                        Text(category, style = TextStyle(fontWeight = FontWeight.Bold))
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row (
@@ -176,9 +202,13 @@ fun Dashboard() {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Orange)
                 }
-            } else if (allRecipes.value.isNullOrEmpty()) {
+            } else if (visibleRecipes.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No recipes yet. Tap Add to create one.", color = Color.Gray)
+                    Text(
+                        if (allRecipes.value.isNullOrEmpty()) "No recipes yet. Tap Add to create one."
+                        else "No recipes in this category yet.",
+                        color = Color.Gray
+                    )
                 }
             } else {
                 LazyColumn(
@@ -186,7 +216,7 @@ fun Dashboard() {
                         .fillMaxSize()
                         .padding(horizontal = 10.dp)
                 ) {
-                    items(allRecipes.value ?: emptyList()) { recipe ->
+                    items(visibleRecipes) { recipe ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
