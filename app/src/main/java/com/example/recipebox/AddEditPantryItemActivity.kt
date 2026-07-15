@@ -166,11 +166,16 @@ fun AddEditPantryItemBody(itemId: String? = null) {
                     Toast.makeText(context, "Please enter an item name", Toast.LENGTH_SHORT).show()
                     return@ElevatedButton
                 }
+                val quantityValue = quantity.toDoubleOrNull()
+                if (quantity.isNotBlank() && (quantityValue == null || quantityValue <= 0.0)) {
+                    Toast.makeText(context, "Quantity must be a positive number", Toast.LENGTH_SHORT).show()
+                    return@ElevatedButton
+                }
                 isSaving = true
                 val model = PantryItemModel(
                     itemId = itemId ?: "",
                     name = name,
-                    quantity = quantity.toDoubleOrNull() ?: 0.0,
+                    quantity = quantityValue ?: 0.0,
                     unit = unit,
                     userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                 )
