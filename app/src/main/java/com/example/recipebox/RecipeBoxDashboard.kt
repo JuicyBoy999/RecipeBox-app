@@ -26,16 +26,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,11 +51,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.recipebox.model.RecipeModel
 import com.example.recipebox.repo.RecipeRepoImpl
-import com.example.recipebox.repo.UserRepoImpl
 import com.example.recipebox.ui.theme.Orange
 import com.example.recipebox.viewmodel.RecipeViewModel
-import com.example.recipebox.viewmodel.UserViewModel
 
 class RecipeBoxDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,13 +71,37 @@ fun Dashboard() {
     val context = LocalContext.current
 
     val recipeViewModel = remember { RecipeViewModel(RecipeRepoImpl()) }
-    val userViewModel = remember { UserViewModel(UserRepoImpl()) }
 
     val allRecipes = recipeViewModel.allRecipes.observeAsState(initial = emptyList())
     val loading = recipeViewModel.loading.observeAsState(initial = false)
 
+    var recipePendingDelete by remember { mutableStateOf<RecipeModel?>(null) }
+
     LaunchedEffect(Unit) {
         recipeViewModel.getAllRecipes()
+    }
+
+    recipePendingDelete?.let { recipe ->
+        AlertDialog(
+            onDismissRequest = { recipePendingDelete = null },
+            title = { Text("Delete recipe?") },
+            text = { Text("\"${recipe.title}\" will be permanently deleted.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    recipePendingDelete = null
+                    recipeViewModel.deleteRecipe(recipe.recipeId) { success, msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { recipePendingDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Column (
@@ -196,9 +223,7 @@ fun Dashboard() {
                                     contentDescription = "Delete",
                                     tint = Color.Gray,
                                     modifier = Modifier.clickable {
-                                        recipeViewModel.deleteRecipe(recipe.recipeId) { success, msg ->
-                                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                                        }
+                                        recipePendingDelete = recipe
                                     }
                                 )
                             }
