@@ -81,6 +81,7 @@ fun Dashboard() {
 
     var recipePendingDelete by remember { mutableStateOf<RecipeModel?>(null) }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var showFavoritesOnly by remember { mutableStateOf(false) }
 
     val categories = allRecipes.value.orEmpty()
         .map { it.category }
@@ -89,6 +90,7 @@ fun Dashboard() {
 
     val visibleRecipes = allRecipes.value.orEmpty()
         .filter { selectedCategory == null || it.category == selectedCategory }
+        .filter { !showFavoritesOnly || it.isFavorite }
 
     LaunchedEffect(Unit) {
         recipeViewModel.getAllRecipes()
@@ -187,16 +189,26 @@ fun Dashboard() {
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row (
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(painter = painterResource(R.drawable.baseline_auto_graph_24),
-                    contentDescription = null,
-                    tint = Color(0xFFEF6C00))
-                Spacer(modifier = Modifier.width(5.dp))
-                Text("Popular Recipes", style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                ))
+                Row {
+                    Icon(painter = painterResource(R.drawable.baseline_auto_graph_24),
+                        contentDescription = null,
+                        tint = Color(0xFFEF6C00))
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text("Popular Recipes", style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
+                    ))
+                }
+                Icon(
+                    imageVector = if (showFavoritesOnly) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Show favorites only",
+                    tint = if (showFavoritesOnly) Color.Red else Color.Gray,
+                    modifier = Modifier.clickable { showFavoritesOnly = !showFavoritesOnly }
+                )
             }
         }
         Box(modifier = Modifier.weight(1f)) {
