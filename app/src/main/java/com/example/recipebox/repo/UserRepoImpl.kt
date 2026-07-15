@@ -146,11 +146,21 @@ class UserRepoImpl : UserRepo {
         id: String,
         callback: (Boolean, String) -> Unit
     ) {
-        ref.child(id).removeValue().addOnCompleteListener {
-            if(it.isSuccessful){
-                callback(true,"Account deleted successfully")
-            }else{
-                callback(false,"${it.exception?.message}")
+        val currentUser = auth.currentUser
+        ref.child(id).removeValue().addOnCompleteListener { dbTask ->
+            if (dbTask.isSuccessful) {
+                // Firebase requires a recent login for this to succeed; if it fails, the
+                // profile record is already gone but the auth account remains.
+                currentUser?.delete()?.addOnCompleteListener { authTask ->
+                    if (authTask.isSuccessful) {
+                        callback(true, "Account deleted successfully")
+                    } else {
+                        callback(false, "${authTask.exception?.message}")
+                    }
+                } ?: callback(true, "Account deleted successfully")
+            } else {
+                callback(false, "${dbTask.exception?.message}")
             }
-        }    }
+        }
+    }
 }

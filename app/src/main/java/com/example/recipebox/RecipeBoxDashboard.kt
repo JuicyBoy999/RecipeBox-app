@@ -1,10 +1,13 @@
 package com.example.recipebox
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,27 +20,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.recipebox.ui.theme.RecipeBoxTheme
+import com.example.recipebox.repo.RecipeRepoImpl
+import com.example.recipebox.repo.UserRepoImpl
 import com.example.recipebox.ui.theme.Orange
+import com.example.recipebox.viewmodel.RecipeViewModel
+import com.example.recipebox.viewmodel.UserViewModel
 
 class RecipeBoxDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +65,18 @@ class RecipeBoxDashboard : ComponentActivity() {
 
 @Composable
 fun Dashboard() {
+    val context = LocalContext.current
+
+    val recipeViewModel = remember { RecipeViewModel(RecipeRepoImpl()) }
+    val userViewModel = remember { UserViewModel(UserRepoImpl()) }
+
+    val allRecipes = recipeViewModel.allRecipes.observeAsState(initial = emptyList())
+    val loading = recipeViewModel.loading.observeAsState(initial = false)
+
+    LaunchedEffect(Unit) {
+        recipeViewModel.getAllRecipes()
+    }
+
     Column (
         modifier = Modifier
             .fillMaxSize(),
@@ -118,8 +144,68 @@ fun Dashboard() {
                 ))
             }
         }
-        LazyColumn {
-            item {  }
+        Box(modifier = Modifier.weight(1f)) {
+            if (loading.value) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Orange)
+                }
+            } else if (allRecipes.value.isNullOrEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No recipes yet. Tap Add to create one.", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp)
+                ) {
+                    items(allRecipes.value ?: emptyList()) { recipe ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .background(Color.Gray.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    recipe.title,
+                                    style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                                )
+                                Text(
+                                    "${recipe.cookTimeMinutes} min",
+                                    style = TextStyle(fontSize = 14.sp, color = Color.Gray)
+                                )
+                            }
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit",
+                                    tint = Orange,
+                                    modifier = Modifier.clickable {
+                                        val intent = Intent(context, AddEditRecipeActivity::class.java)
+                                        intent.putExtra("recipeId", recipe.recipeId)
+                                        context.startActivity(intent)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.clickable {
+                                        recipeViewModel.deleteRecipe(recipe.recipeId) { success, msg ->
+                                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
         Row (
             modifier = Modifier
@@ -157,7 +243,11 @@ fun Dashboard() {
             }
             Column (
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    val intent = Intent(context, AddEditRecipeActivity::class.java)
+                    context.startActivity(intent)
+                }
             ) {
                 Icon(painter = painterResource(R.drawable.baseline_add_circle_outline_24),
                     contentDescription = null,
@@ -170,7 +260,11 @@ fun Dashboard() {
             }
             Column (
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    val intent = Intent(context, PantryActivity::class.java)
+                    context.startActivity(intent)
+                }
             ) {
                 Icon(painter = painterResource(R.drawable.outline_inventory_2_24),
                     contentDescription = null,
@@ -183,7 +277,11 @@ fun Dashboard() {
             }
             Column (
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    val intent = Intent(context, ProfileActivity::class.java)
+                    context.startActivity(intent)
+                }
             ) {
                 Icon(painter = painterResource(R.drawable.baseline_person_outline_24),
                     contentDescription = null,

@@ -1,5 +1,7 @@
 package com.example.recipebox
 
+import android.app.Activity
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,16 +13,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 
 class RecipeBookSplash : ComponentActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
@@ -34,6 +40,22 @@ class RecipeBookSplash : ComponentActivity() {
 
 @Composable
 fun SplashScreen() {
+    val context = LocalContext.current
+    val activity = context as Activity
+
+    LaunchedEffect(Unit) {
+        delay(800)
+        val destination = if (FirebaseAuth.getInstance().currentUser != null) {
+            RecipeBoxDashboard::class.java
+        } else {
+            RecipeBoxLogin::class.java
+        }
+        val intent = Intent(context, destination)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        context.startActivity(intent)
+        activity.finish()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RecipeBox">
         <activity
-            android:name=".MainActivity"
+            android:name=".RecipeBookSplash"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.RecipeBox">
@@ -22,6 +22,51 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RecipeBoxLogin"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".RecipeBoxSignUp"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".RecipeBoxForgotPass"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".RecipeBoxNewPassword"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".RecipeBoxDashboard"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".AddEditRecipeActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".PantryActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".AddEditPantryItemActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
     </application>
 
 </manifest>

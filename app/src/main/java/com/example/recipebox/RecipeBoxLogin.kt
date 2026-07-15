@@ -166,9 +166,8 @@ fun SignIn() {
             Text(
                 "Forgot password",
                 modifier = Modifier.clickable {
-                    userViewModel.forgetPassword(email) { success, msg ->
-                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                    }
+                    val intent = Intent(context, RecipeBoxForgotPass::class.java)
+                    context.startActivity(intent)
                 },
                 style = TextStyle(fontSize = 15.sp)
             )
@@ -187,7 +186,8 @@ fun SignIn() {
                     isLoading = false
                     if (success) {
                         Toast.makeText(context, "Login successful", Toast.LENGTH_LONG).show()
-                        val intent = Intent(context, RecipeBoxDashboard::class.java) 
+                        val intent = Intent(context, RecipeBoxDashboard::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         context.startActivity(intent)
                         activity.finish()
                     } else {

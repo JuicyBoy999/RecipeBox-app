@@ -1,5 +1,7 @@
 package com.example.recipebox
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -63,7 +65,9 @@ fun SignUp () {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val activity = context as Activity
 
     Column (
         modifier = Modifier
@@ -165,6 +169,11 @@ fun SignUp () {
         Spacer(modifier = Modifier.height(24.dp))
         ElevatedButton(
             onClick = {
+                if (name.isBlank() || email.isBlank() || password.isBlank()) {
+                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    return@ElevatedButton
+                }
+                isLoading = true
                 userViewModel.register(email, password) { success, msg, userId ->
                     if (success) {
                         val user = UserModel (
@@ -172,10 +181,21 @@ fun SignUp () {
                             name = name,
                             email = email,
                         )
-                        userViewModel.addUser(userId, user) { success, msg ->
-                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        userViewModel.addUser(userId, user) { addSuccess, addMsg ->
+                            isLoading = false
+                            if (addSuccess) {
+                                userViewModel.logout { _, _ -> }
+                                Toast.makeText(context, "Account created. Please sign in.", Toast.LENGTH_LONG).show()
+                                val intent = Intent(context, RecipeBoxLogin::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                context.startActivity(intent)
+                                activity.finish()
+                            } else {
+                                Toast.makeText(context, addMsg, Toast.LENGTH_LONG).show()
+                            }
                         }
                     } else {
+                        isLoading = false
                         Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                     }
                 }
@@ -186,12 +206,16 @@ fun SignUp () {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Orange
-            )
+            ),
+            enabled = !isLoading
         ) {
-            Text("Create Account", style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            ))
+            Text(
+                if (isLoading) "Creating account..." else "Create Account",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         Row {
@@ -200,7 +224,11 @@ fun SignUp () {
                 color = Color.Gray
             ))
             Text("Sign In",
-                modifier = Modifier.clickable{},
+                modifier = Modifier.clickable {
+                    val intent = Intent(context, RecipeBoxLogin::class.java)
+                    context.startActivity(intent)
+                    activity.finish()
+                },
                 style = TextStyle(
                 fontSize = 15.sp,
                 color = Color(0xFFEF6C00),
