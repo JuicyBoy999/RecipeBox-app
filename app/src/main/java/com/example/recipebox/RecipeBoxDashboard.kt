@@ -311,7 +311,11 @@ fun Dashboard() {
             }
             Column (
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    val intent = Intent(context, RecipeSearchActivity::class.java)
+                    context.startActivity(intent)
+                }
             ) {
                 Icon(painter = painterResource(R.drawable.baseline_search_24),
                     contentDescription = null,

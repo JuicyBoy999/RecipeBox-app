@@ -67,6 +67,11 @@
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.RecipeBox" />
+        <activity
+            android:name=".RecipeSearchActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.RecipeBox" />
     </application>
 
 </manifest>
