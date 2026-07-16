@@ -274,7 +274,11 @@ fun Dashboard() {
                                     contentDescription = "Favorite",
                                     tint = if (recipe.isFavorite) Color.Red else Color.Gray,
                                     modifier = Modifier.clickable {
-                                        recipeViewModel.updateRecipe(recipe.copy(isFavorite = !recipe.isFavorite)) { _, _ -> }
+                                        recipeViewModel.updateRecipe(recipe.copy(isFavorite = !recipe.isFavorite)) { success, msg ->
+                                            if (!success) {
+                                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
                                     }
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))

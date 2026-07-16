@@ -6,23 +6,19 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="RecipeBookSplash (1)">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="RecipeBookSplash (2)">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="ProfileActivity">
+      <SelectionState runConfigName="RecipeBookSplash (4)">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="RecipeBoxDashboard">
+      <SelectionState runConfigName="RecipeBookSplash (5)">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="RecipeBookSplash (3)">
+      <SelectionState runConfigName="LoginInstrumentedTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

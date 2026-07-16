@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -217,10 +218,12 @@ fun SignIn() {
             Text("Don't have an account? ", style = TextStyle(fontSize = 15.sp, color = Color.Gray))
             Text(
                 "Sign Up",
-                modifier = Modifier.clickable {
-                    val intent = Intent(context, RecipeBoxSignUp::class.java)
-                    context.startActivity(intent)
-                },
+                modifier = Modifier
+                    .testTag("signup")
+                    .clickable {
+                        val intent = Intent(context, RecipeBoxSignUp::class.java)
+                        context.startActivity(intent)
+                    },
                 style = TextStyle(
                     fontSize = 15.sp,
                     color = Color(0xFFEF6C00),
