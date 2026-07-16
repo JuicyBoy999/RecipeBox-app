@@ -51,9 +51,6 @@ class UserRepoImpl : UserRepo {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()){
                     val user = snapshot.getValue(UserModel::class.java)
-//                   if(user != null){
-//                       callback(true,"user fetched",user)
-//                   }
                     user.let {
                         callback(true,"user fetched",it)
                     }
@@ -115,8 +112,6 @@ class UserRepoImpl : UserRepo {
         model: UserModel,
         callback: (Boolean, String) -> Unit
     ) {
-        //to auto generate id
-//        val id = ref.push().key.toString()
         ref.child(id).setValue(model).addOnCompleteListener {
             if (it.isSuccessful) {
                 callback(true, "User registered")
@@ -149,8 +144,6 @@ class UserRepoImpl : UserRepo {
         val currentUser = auth.currentUser
         ref.child(id).removeValue().addOnCompleteListener { dbTask ->
             if (dbTask.isSuccessful) {
-                // Firebase requires a recent login for this to succeed; if it fails, the
-                // profile record is already gone but the auth account remains.
                 currentUser?.delete()?.addOnCompleteListener { authTask ->
                     if (authTask.isSuccessful) {
                         callback(true, "Account deleted successfully")

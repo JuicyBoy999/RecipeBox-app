@@ -213,7 +213,6 @@ fun SignIn() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Navigate to Sign Up
         Row {
             Text("Don't have an account? ", style = TextStyle(fontSize = 15.sp, color = Color.Gray))
             Text(

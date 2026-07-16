@@ -38,11 +38,6 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.RecipeBox" />
         <activity
-            android:name=".RecipeBoxNewPassword"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.RecipeBox" />
-        <activity
             android:name=".RecipeBoxDashboard"
             android:exported="false"
             android:label="@string/app_name"

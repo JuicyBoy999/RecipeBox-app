@@ -63,7 +63,6 @@ class UserViewModel(val repo: UserRepo) : ViewModel() {
         repo.logout(callback);
     }
 
-    //authentication
     fun register(
         email: String, password: String,
         callback: (Boolean, String, String) -> Unit
